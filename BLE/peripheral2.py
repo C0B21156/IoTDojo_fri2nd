@@ -1,6 +1,3 @@
-
-
-
 # This example demonstrates a simple temperature sensor peripheral.
 #
 # The sensor's local value updates every second, and it will notify
@@ -11,7 +8,7 @@ import random
 import struct
 import time
 import binascii
-from central2 import BLEDevCentral
+import central2
 from BLE_advertising import advertising_payload
 
 from micropython import const
@@ -36,7 +33,7 @@ class BLE:
     ble = None
     name = None
 
-    def __init__(self, ble, name="esp32-3"):
+    def __init__(self, ble, name="esp32-4"):
         self._ble = ble
         self._ble.active(True)
         self._ble.irq(self._irq)
@@ -59,10 +56,11 @@ class BLE:
         elif event == _IRQ_GATTS_INDICATE_DONE:
             conn_handle, value_handle, status = data
 
-    def set_dev_name(self, dev_name, notify=False, indicate=False):
+    def set_dev_name(self, name, notify=False, indicate=False):
         # Data is sint16 in degrees Celsius with a resolution of 0.01 degrees Celsius.
         # Write the local value, ready for a central to read.
-        self._ble.gatts_write(self._handle, struct.pack('12si',dev_name)) #読み込み可能な書き込み
+        self._ble.gatts_write(self._handle, struct.pack('12si',name)) #読み込み可能な書き込み
+        #self._ble.gatts_write(self._handle, name)
         if notify or indicate:
             for conn_handle in self._connections:
                 if notify:
@@ -78,16 +76,13 @@ class BLE:
 
 def periph():
     ble = bluetooth.BLE()
-    ble.config(gap_name='senser05')
+    ble.config(gap_name= 'senser05')
     set_name = ble.config('gap_name')
-    #addr = ble.config('mac')
-    #print(addr[1])
+    print(set_name)
+    nm = central2.Centr()
+    print(nm.encode())
     print(binascii.hexlify("esp32"))
     b = BLE(ble)
-    #val = BLEDevCentral._update_value(self, data):
-    #print(val)
-    #print(Centr)
-
     i = 0
     count = 0
 
@@ -95,9 +90,10 @@ def periph():
     #while True: #無限ループ
         # Write every second, notify every 10 seconds.
         i = (i + 1) % 10
-        b.set_dev_name(set_name, notify=i == 0, indicate=False)
+        #b.set_dev_name(set_name, notify=i == 0, indicate=False)
+        b.set_dev_name(nm, notify=i == 0, indicate=False)
         ##Random walk the temperature.
-        print(set_name)
+        print(nm)
         time.sleep_ms(1000)
         count += 1
 
