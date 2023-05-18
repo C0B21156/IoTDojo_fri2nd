@@ -78,7 +78,8 @@ class BLEDevCentral:
             addr_type, addr, adv_type, rssi, adv_data = data
             adv = ubinascii.hexlify(adv_data)
             adr = ubinascii.hexlify(addr)
-            if '6573703332' in adv:
+            if '6573703332' in adv: #esp32
+            #if '65737033322d34' in adv: #esp32-4
                 adv = str(ubinascii.unhexlify(adv), 'utf-8')
                 print('type:{} addr:{} rssi:{} data:{}'.format(addr_type, adr, rssi, adv))    
                 if adv_type in (_ADV_IND, _ADV_DIRECT_IND) and _Dev_Info_UUID in decode_services(adv_data):
@@ -152,7 +153,10 @@ class BLEDevCentral:
                 self._update_value(char_data)
                 if self._read_callback:
                     self._read_callback(self._value)
-                    self._read_callback = None
+                    #print("12345")
+                    #print(self._value)
+                    self._read_callback = self._value
+                    return self._read_callback
 
         elif event == _IRQ_GATTC_READ_DONE:
             # Read completed (no-op).
@@ -220,7 +224,7 @@ class BLEDevCentral:
 
 def Centr():
     ble = bluetooth.BLE()
-    ble.config(gap_name='senser06')
+    ble.config(gap_name='senser04')
     set_name = ble.config('gap_name')
     print(set_name)
     central = BLEDevCentral(ble)
@@ -258,9 +262,11 @@ def Centr():
         utime.sleep_ms(2000)
         count += 1
         print(count)
-    print("######")
+    senser = central._read_callback
+    print(senser)
     central.disconnect()
     print("Disconnected")
+    return senser
 
 if __name__ == "__main__":
     Centr()
