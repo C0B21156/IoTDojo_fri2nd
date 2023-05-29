@@ -78,7 +78,8 @@ class BLEDevCentral:
             addr_type, addr, adv_type, rssi, adv_data = data
             adv = ubinascii.hexlify(adv_data)
             adr = ubinascii.hexlify(addr)
-            if '6573703332' in adv:
+            #if '6573703332' in adv: #esp32
+            if '65737033322d34' in adv: #esp32-4
                 adv = str(ubinascii.unhexlify(adv), 'utf-8')
                 print('type:{} addr:{} rssi:{} data:{}'.format(addr_type, adr, rssi, adv))    
                 if adv_type in (_ADV_IND, _ADV_DIRECT_IND) and _Dev_Info_UUID in decode_services(adv_data):
@@ -230,7 +231,7 @@ def Centr():
 
     not_found = False
 
-    def on_scan(addr_type, addr, name): #scanのcallback
+    def on_scan(addr_type, addr, name): #scanのcallback #ここでconnect呼び出ししてる
         if addr_type is not None:
             #もし、nameがsenser01なら
             name = ubinascii.hexlify(name)
